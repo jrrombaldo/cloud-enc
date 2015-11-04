@@ -27,7 +27,7 @@ if [ $is_mounted = "0" ]; then
 	logger -p local0.info "$0 umounted (result = $?)"
 
 else
-	encfs --idle=15  $ciphered_container $mountpoint --extpass="$extpass_call" --idle=$umount_after -ovolname=$volume -oallow_root -olocal -ohard_remove -oauto_xattr -onolocalcaches
+	encfs --idle=$umount_after  $ciphered_container $mountpoint --extpass="$extpass_call" --idle=$umount_after -ovolname=$volume -oallow_root -olocal -ohard_remove -oauto_xattr -onolocalcaches
 	echo -e "$0 > \tmounted (result = $?)"
 	logger -p local0.info "$0 mounted (result = $?)"
 fi;
