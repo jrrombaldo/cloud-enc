@@ -1,0 +1,39 @@
+{
+  "name": "cloud-enc",
+  "version": "0.0.1",
+  "description": "encrypt file systems",
+  "main": "main.js",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "bootswatch": "^4.3.1",
+    "colors": "^1.3.3",
+    "deasync": "^0.1.15",
+    "electron-packager": "^13.1.1",
+    "is-root": "^2.1.0",
+    "jquery": "^3.4.1",
+    "npm-check": "^5.9.0",
+    "popper.js": "^1.15.0",
+    "shelljs": "^0.8.3",
+    "string-format": "^2.0.0"
+  },
+  "devDependencies": {
+    "electron": "^3.1.9"
+  },
+  "scripts": {
+    "start": "electron .",
+    "pack": "sh darwin-pack.sh",
+    "app": "sh darwin-pack.sh && open release-builds/cloud-enc-darwin-x64/cloud-enc.app",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devtest": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrrombaldo/cloud-enc.git"
+  },
+  "author": "Carlos Rombaldo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jrrombaldo/cloud-enc/issues"
+  },
+  "homepage": "https://github.com/jrrombaldo/cloud-enc#readme"
+}

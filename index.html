@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src '*'"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./node_modules/bootswatch/dist/darkly/bootstrap.min.css">
+
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-md navbar-dark bg-primary">
+    <h2>Cloud-Enc</h2>
+
+  </nav>
+
+  <div class="form-group">
+    <label for="exampleInputFile">Encrypted Folder: </label>
+    <input type="file" class="form-control-file" id="encfsFolder" value="/Users/junior/Desktop/tmp/dst"  webkitdirectory
+      mozdirectory msdirectory odirectory directory>
+    <!-- <small id="fileHelp" class="form-text text-muted">Encrypted folder</small> -->
+  </div>
+
+  <div class="form-group">
+    <label for="exampleInputFile">Unencrypted Folder: </label>
+    <input type="file" class="form-control-file" id="clearFolder" value="/Users/junior/Desktop/tmp/src" webkitdirectory
+      mozdirectory msdirectory odirectory directory>
+    <!-- <small id="fileHelp" class="form-text text-muted">Clear folder</small> -->
+  </div>
+
+  <div class="form-group">
+  <span id="statusLbl"></span>
+   
+  </div>
+
+  <button type="button" class="btn btn-primary" id="mountBtn">Mount</button>
+
+
+
+  <!-- We are using node
+  <script>document.write(process.versions.node)</script>,
+  Chrome
+  <script>document.write(process.versions.chrome)</script>,
+  and Electron
+  <script>document.write(process.versions.electron)</script>.
+ -->
+
+  <script>
+    require('./renderer.js')
+    // require('popper.js')
+    // window.jQuery = window.$ = require('jquery');
+    // require('bootstrap')
+
+    
+
+  </script>
+</body>
+
+</html>
