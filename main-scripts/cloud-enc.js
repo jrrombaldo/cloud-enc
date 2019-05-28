@@ -6,11 +6,11 @@ var shell = require("shelljs")
 var os = require('os');
 const colors = require('colors');
 
+// https://github.com/shelljs/shelljs/wiki/Electron-compatibility
+shell.config.execPath = shell.which("node").stdout;
 
-console.log("cloud-enc imported")
 
-
-module.exports = class CloudEnc {
+class CloudEnc {
     constructor(source, destination, volumeName = "") {
         this.checkOS()
 
@@ -68,7 +68,7 @@ module.exports = class CloudEnc {
 
     getMountOrCreateCmd() {
         // TODO create an standalone script to ask for password. it will be called by encfs anytime the idle timeout is reached
-        var extpass_call = "security 2>&1 >/dev/null find-generic-password -gl \"EncFS-Cloud\" | grep password | cut -d \\\" -f 2"
+        var extpass_call = format("security 2>&1 >/dev/null find-generic-password -gl \"{0}\" | grep password | cut -d \\\" -f 2", this.volumeName)
         var raw = "{encfs}  {container} {mount_point} --extpass='{passwd_prg}' --idle={idle} --ondemand --delaymount --standard --require-macs -ovolname={name} -oallow_root -olocal -ohard_remove -oauto_xattr -onolocalcaches"
         return format(raw, {
             encfs: "encfs",
@@ -81,7 +81,6 @@ module.exports = class CloudEnc {
     }
 
     getUnmountCmd() {
-
         switch (os.platform()) {
             case "darwin":
                 // return format("fusermount -u {0}", destination)
@@ -101,17 +100,17 @@ module.exports = class CloudEnc {
     execute(cmd) {
         // console.debug(cmd)
         var result = shell.exec(cmd)
-        // console.debug(result.code, result.stdout)
+        // console.log(result)
         if (result.code != 0) {
             console.error(result)
             throw new Error(result.stderr)
         }
+        return result.stdout
     }
 
     mount() {
-       
         if (this.isMounted()) {
-            console.info(format("{0} already mounted",this.destination).red)
+            console.info(format("{0} already mounted", this.destination).red)
         } else {
             console.debug(format("mountind {0} -> {1} as {2}", this.source, this.destination, this.volumeName).grey)
             console.time()
@@ -127,16 +126,13 @@ module.exports = class CloudEnc {
             this.execute(this.getUnmountCmd())
             console.timeEnd()
         } else {
-            console.info(format("{0} not mounted",this.destination).red)
+            console.info(format("{0} not mounted", this.destination).red)
         }
     }
 
     isMounted() {
-
         var cmd = format("mount | grep -qs '{}' ", (this.destination))
-        // console.log(cmd)
         var result = shell.exec(cmd)
-  
 
         if (result.stderr != '' || result.stdout != '') {
             var msg = format("Failed to check is [{dst}] mounted\n\n return = {code}\n\n stderr=[{stderr}] \n\n stdout=[{stdout}]",
@@ -145,13 +141,85 @@ module.exports = class CloudEnc {
             throw new Error(msg);
         }
 
-
         if (result.code == 0)
             return true
         if (result.code == 1)
             return false
     }
+
+    getAccountName() {
+        return format("{0}:{1}", constants.KEYCHAIN_ACCOUNT, this.source)
+    }
+
+    // password format is cloud-enc:<sourceFolder>
+    createKeyChainPassword(password) {
+        var command = format(
+            "security add-generic-password -a '{account}' -s '{service}' -D 'application password' -j \"{comment}\" -w'{password}' -U",
+            {
+                account: this.getAccountName(),
+                service: constants.KEYCHAIN_ACCOUNT,
+                password: password,
+                comment: "Created by cloud-enc @ $( date +'%Y.%m.%d-%H:%M')",
+            })
+        return this.execute(command)
+    }
+
+    //  TODO, shelljs module always print the stdout, which means the password endup bing printed on stdout :(
+    getKeyChainPassword() {
+        var command = format("security find-generic-password  -a '{account}' -s '{service}' -w ",
+            {
+                account: this.getAccountName(),
+                service: constants.KEYCHAIN_ACCOUNT,
+            })
+        var result = shell.exec(command)
+        if (result.code===0)
+            return result.stdout
+        if (result.code===44) // not found
+            return null
+        if (result.code === 0) {
+            console.error(result)
+            throw new Error(result.stderr)
+        }
+    }
 }
+
+module.exports = CloudEnc
+
+
+
+const { ipcMain } = require('electron')
+
+console.debug("registering account_exists")
+ipcMain.on("account_exists", (event, arg) => {
+    var source = arg['source'];
+    if (!source || source === '') {
+        console.error(format("source folder [{0}]", source).red)
+    }
+
+    var destination = arg['destination'];
+    if (!destination || destination === '') {
+        console.error(format("destination folder [{0}]", destination).red)
+        event.return = false
+    }
+    var cenc = new CloudEnc(source, destination)
+    var password = cenc.getKeyChainPassword()
+
+    if (password) { event.returnValue = true }
+    else { event.returnValue = false }
+
+})
+
+
+const { dialog } = require('electron')
+
+ipcMain.on("get_direcotry_natively", (event, arg) => {
+    var directory = dialog.showOpenDialog({ properties: ['openDirectory'] })
+    if (directory)
+        event.returnValue = directory[0]
+    else
+        event.returnValue = null
+})
+
 
 
 

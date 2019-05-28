@@ -46,7 +46,6 @@ function createTray() {
     }])
     // appIcon.setTitle("Testing...")
     appIcon.setContextMenu(trayMenu)
-    console.log(appIcon)
 }
 
 app.on('ready', () => {
@@ -77,5 +76,9 @@ function loadScripts() {
     const scripts = fs.readdirSync("./main-scripts")
     scripts.forEach(script => {
         script.endsWith(".js") && require("./main-scripts/" + script)
+         // if (script.endsWith(".js")) {
+        //     require("./main-scripts/" + script) && console.info(script, "imported")
+        // }
     });
 }
+
