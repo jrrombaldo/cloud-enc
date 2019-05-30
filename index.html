@@ -19,35 +19,42 @@
 
   <!-- https://getbootstrap.com/docs/4.1/components/forms/ -->
 
-
-  <form>
+<!-- return false to keep the data on the form after submit -->
+  <!-- <form onsubmit ="return false"> -->
+    <form id="cloudEncForm">
     <div class="form-row">
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-4">
         <label for="source">Unencrypted</label>
-        <input type="text" class="form-control" id="source" placeholder="Unencrypted">
+        <input type="text" class="form-control" id="source" placeholder="Unencrypted" required>
+        <div class="invalid-feedback">
+          Please provide an folder to be encrypted.
+        </div>
       </div>
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-4">
         <label for="destination">Encrypted</label>
-        <input type="text" class="form-control" id="destination" placeholder="Encrypted">
+        <input type="text" class="form-control" id="destination" placeholder="Encrypted" required>
       </div>
     </div>
     <div class="form-row">
-      <div class="form-group col-md-4">
+      <div class="form-group col-md-3">
         <label for="volumeName">Volume Name</label>
-        <input type="text" class="form-control" id="volumeName" placeholder="VolumeName">
+        <input type="text" class="form-control" id="volumeName" placeholder="VolumeName" required>
       </div>
-      <div class="form-group col-md-4">
-        <label for="password" id="passwordLabel">Password</label>
-        <input type="password" class="form-control" id="password" placeholder="Password">
+
+      <div  class="form-group col-md-3">
+        <fieldset id="passwordDiv" disabled>
+          <label for="password" id="passwordLabel">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Password">
+        </fieldset>
       </div>
-   
+
     </div>
 
     <div class="form-group">
-        <div class="form-group col-md-2">
-            <span id="statusLbl">XXX</span> <br>
-          <button type="button" class="btn btn-primary" id="mountBtn">Mount</button>
-        </div>
+      <div class="form-group col-md-2">
+        <span id="statusLbl"></span> <br>
+        <button type="submit" class="btn btn-primary" id="mountBtn">Mount</button>
+      </div>
     </div>
   </form>
 
@@ -74,6 +81,9 @@
     // require('popper.js')
     // window.jQuery = window.$ = require('jquery');
     // require('bootstrap')
+
+    // update button label
+
   </script>
 </body>
 

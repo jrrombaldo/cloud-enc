@@ -1,75 +1,101 @@
 
-const { ipcRenderer } = require('electron')
+const { ipcRenderer, dialog } = require('electron')
 
 
-
-
-console.log(ipcRenderer)
-
-// ======  reading directories with native dialog, to avoid security issues with browsers
 const source = document.getElementById('source')
 const destination = document.getElementById('destination')
 
+const passwordDiv = document.getElementById('passwordDiv')
 const password = document.getElementById('password')
 const volumeName = document.getElementById('volumeName')
 const status = document.getElementById('statusLbl')
+const cloudEncForm = document.getElementById('cloudEncForm')
+
+var mounted = false;
+const mountBtn = document.getElementById('mountBtn')
+
+function updateBtn() {
+    console.log("updating mount/unmont button")
+    var mounted = ipcRenderer.sendSync("is_mounted", { destination: destination.value })
+    if (mounted)
+        mountBtn.innerText = "UnMount"
+    else
+        mountBtn.innerText = "Mount"
+}
 
 
 
-source.onclick = ()=>{ 
+// ======  reading directories with native dialog, to avoid security issues with browsers
+source.onclick = () => {
     var dir = ipcRenderer.sendSync("get_direcotry_natively", {})
-    if(dir){
+    if (dir) {
         source.value = dir
-        console.log("before")
-        var exists = ipcRenderer.sendSync("account_exists", { source: dir, destination: dir })
-        if (exists){
-            status.innerText = "credential already exists would like to update?"
-        }  
+        var reuse = ipcRenderer.sendSync("account_exists_reuse", { source: dir, destination: dir })
+        if (reuse) {
+            passwordDiv.disabled = true
+            password.value = ""
+        }
+        else {
+            passwordDiv.disabled = false
+        }
+    }
+}
+
+// ======  reading directories with native dialog, to avoid security issues with browsers
+destination.onclick = () => {
+    var dir = ipcRenderer.sendSync("get_direcotry_natively", {})
+    if (dir) {
+        destination.value = dir
+        updateBtn()
     }
 }
 
 
-destination.onclick = ()=>{ 
-    var dir = ipcRenderer.sendSync("get_direcotry_natively", {})
-    if(dir) destination.value = dir
+cloudEncForm.onsubmit = ()=>{ 
+    var args = {
+        source: source.value,
+        destination: destination.value,
+        volumeName: volumeName.value,
+    }
+    var result = ipcRenderer.sendSync("mount_unmount", args)
+    updateBtn();
+    notify(result+" with success")
+
+    // avoid the form to reload
+    return false
 }
 
 
+// var volumeName = document.getElementById("volumeName").value
+// var password = document.getElementById("password").value
+// var destination = document.getElementById("encfsFolder").value
+// var status = document.getElementById("statusLbl")
+
+// console.log(document.getElementById("clearFolder").value)
+// notify(source)
+
+// var replay = ipcRenderer.sendSync("account_exists", { source: source, destination: destination })
+// console.log(replay)
+// status.innerHTML = replay
+
+// notify(replay)
 
 
-const mountBtn = document.getElementById('mountBtn')
-mountBtn.onclick = () => {
-    
-    // var volumeName = document.getElementById("volumeName").value
-    // var password = document.getElementById("password").value
-    // var destination = document.getElementById("encfsFolder").value
-    // var status = document.getElementById("statusLbl")
+// var replay = ipcRenderer.sendSync("set_keychain_password", {password:"test123", "volumeName":"volTest"})
+// console.log(replay)
+// if (source === '' || !source) {
+//     status.innerHTML = "Unecrypted folder required"
+//     return;
+// }
+// if (destination === '' || !destination) {
+//     status.innerHTML = "Ecrypted folder required"
+//     return;
+// }
 
-    // console.log(document.getElementById("clearFolder").value)
-    // notify(source)
-
-    // var replay = ipcRenderer.sendSync("account_exists", { source: source, destination: destination })
-    // console.log(replay)
-    // status.innerHTML = replay
-
-    // notify(replay)
+// console.log
 
 
-    // var replay = ipcRenderer.sendSync("set_keychain_password", {password:"test123", "volumeName":"volTest"})
-    // console.log(replay)
-    // if (source === '' || !source) {
-    //     status.innerHTML = "Unecrypted folder required"
-    //     return;
-    // }
-    // if (destination === '' || !destination) {
-    //     status.innerHTML = "Ecrypted folder required"
-    //     return;
-    // }
 
-    // console.log
-
-
-}
 
 function notify(title = "CloudEnc", message) {
     const notification = {

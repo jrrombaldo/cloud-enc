@@ -12,11 +12,12 @@ let appIcon = null
 const icoPath = './resources/elec.icns'
 const icoPathPNG = './resources/cloud-enc.png'
 
+
 function createWindow() {
 
     mainWindow = new BrowserWindow({
         width: 800,
-        height: 600,
+        height: 360,
         // frame: false,
         fullscreenable: false,
         resizable: false,

@@ -13,14 +13,14 @@
     "string-format": "^2.0.0"
   },
   "devDependencies": {
-    "electron": "^3.1.9",
+    "electron": "^3.1.10",
     "electron-builder": "^20.41.0",
     "electron-packager": "^13.1.1"
   },
   "scripts": {
     "start": "electron .",
     "pack": "sh darwin-pack.sh",
-    "build":" ./node_modules/.bin/electron-builder --publish never --config electron-builder.yaml",
+    "build": " ./node_modules/.bin/electron-builder --publish never --config electron-builder.yaml",
     "app": "sh darwin-pack.sh && open release-builds/cloud-enc-darwin-x64/cloud-enc.app",
     "test": "echo \"Error: no test specified\" && exit 1",
     "devtest": "node test.js"
