@@ -5,11 +5,12 @@ const path = require('path')
 var shell = require("shelljs")
 var os = require('os');
 const colors = require('colors');
+const log = require('electron-log');
 
 // https://github.com/shelljs/shelljs/wiki/Electron-compatibility
 shell.config.execPath = shell.which("node").stdout;
 
-
+log.info("logged")
 // class CloudEnc {
 //     constructor(source, destination, volumeName = "") {
 //         this.checkOS()
@@ -24,10 +25,10 @@ shell.config.execPath = shell.which("node").stdout;
 
 function checkDir(dir) {
     var fullpath = path.resolve(dir)
-    console.debug("absolute path", fullpath)
+    log.debug("absolute path", fullpath)
 
     if (!fs.existsSync(fullpath)) {
-        console.debug("creating directoory", fullpath)
+        log.debug("creating directoory", fullpath)
         fs.mkdirSync(fullpath)
     }
 
@@ -35,27 +36,27 @@ function checkDir(dir) {
         return fullpath
     }
     else {
-        // console.error("it is not a directory")
+        // log.error("it is not a directory")
         throw new Error("it is not a directory " + fullpath)
     }
 }
 
 function checkOS() {
     // https://nodejs.org/dist/latest-v5.x/docs/api/os.html#os_os_platform
-    console.debug(format("running on {0}, {1}", os.type(), os.release()).green)
+    log.debug(format("running on {0}, {1}", os.type(), os.release()).green)
 
     if (constants.SUPPORTED_PLATFORM.indexOf(os.platform()) < 0) {
-        console.error(format("unsuported platform {0}", os.platform()))
+        log.error(format("unsuported platform {0}", os.platform()))
         throw new Error("unsuported platform " + os.platform())
     }
-    console.info(format("platform supported {0}", os.platform()).green)
+    log.info(format("platform supported {0}", os.platform()).green)
 
     // cheking ENCFS
     var result = shell.which(constants.ENCFS)
     if (result.code === 0)
-        console.info("found encfs at", result.stdout)
+        log.info("found encfs at", result.stdout)
     else {
-        console.debug(result)
+        log.debug(result)
         throw new Error("EncFS not found, please install")
     }
 }
@@ -96,12 +97,12 @@ function getUnmountCmd(destination) {
 }
 
 function execute(cmd) {
-    // console.debug(cmd)
+    // log.debug(cmd)
     var result = shell.exec(cmd)
-    // console.log(result)
+    // log.log(result)
     if (result.code != 0) {
-        console.log ("cmd="+cmd)
-        console.error(result)
+        log.log ("cmd="+cmd)
+        log.error(result)
         throw new Error(result.stderr)
     }
     return result.stdout
@@ -115,9 +116,9 @@ function mount(source, destination, volumeName) {
         volumeName = path.basename(source).concat(constants.VOLUME_NAME_SUFIX)
 
     if (isMounted(destination)) {
-        console.info(format("{0} already mounted", destination).red)
+        log.info(format("{0} already mounted", destination).red)
     } else {
-        console.debug(format("mountind {0} -> {1} as {2}", source, destination, volumeName).grey)
+        log.debug(format("mountind {0} -> {1} as {2}", source, destination, volumeName).grey)
         console.time()
         execute(getMountOrCreateCmd(source, destination, volumeName))
         console.timeEnd()
@@ -128,12 +129,12 @@ function unmont(destination) {
     destination = checkDir(destination)
 
     if (isMounted(destination)) {
-        console.debug(format("unmounting {0} ({1})", destination).grey)
+        log.debug(format("unmounting {0} ({1})", destination).grey)
         console.time()
         execute(getUnmountCmd(destination))
         console.timeEnd()
     } else {
-        console.info(format("{0} not mounted", destination).red)
+        log.info(format("{0} not mounted", destination).red)
     }
 }
 
@@ -146,7 +147,7 @@ function isMounted(destination) {
     if (result.stderr != '' || result.stdout != '') {
         var msg = format("Failed to check is [{dst}] mounted\n\n return = {code}\n\n stderr=[{stderr}] \n\n stdout=[{stdout}]",
             { stderr: result.stderr, stdout: result.stdout, code: result.code, dst: destination })
-        console.error(cmd, result)
+        log.error(cmd, result)
         throw new Error(msg);
     }
 
@@ -195,7 +196,7 @@ function getKeyChainPassword(source) {
     if (result.code === 44) // not found
         return null
     if (result.code === 0) {
-        console.error(result)
+        log.error(result)
         throw new Error(result.stderr)
     }
 }
@@ -204,18 +205,18 @@ function getKeyChainPassword(source) {
 
 const { ipcMain } = require('electron')
 
-console.debug("registering account_exists")
+log.debug("registering account_exists")
 
 
 ipcMain.on("account_exists_reuse", (event, arg) => {
     var source = arg['source'];
     if (!source || source === '') {
-        console.error(format("source folder [{0}]", source).red)
+        log.error(format("source folder [{0}]", source).red)
     }
 
     var destination = arg['destination'];
     if (!destination || destination === '') {
-        console.error(format("destination folder [{0}]", destination).red)
+        log.error(format("destination folder [{0}]", destination).red)
         event.return = false
     }
     var password = getKeyChainPassword(source)
@@ -269,15 +270,15 @@ ipcMain.on("mount_unmount", (event, arg) => {
     var volumeName = arg['volumeName'];
 
     if (!isMounted(destination)){
-        console.log(format("{0} is not mounted, mounting", destination))
+        log.log(format("{0} is not mounted, mounting", destination))
         mount(source,destination,volumeName)
         event.returnValue = "Mounted"
-        console.log(format("{0} -> {1} mounted with success", source, destination))
+        log.log(format("{0} -> {1} mounted with success", source, destination))
     } else {
-        console.log(format("{0} is  mounted, unmounting", destination))
+        log.log(format("{0} is  mounted, unmounting", destination))
         unmont(destination)
         event.returnValue = "Unmounted"
-        console.log(format("{0} unounted with success", destination))
+        log.log(format("{0} unounted with success", destination))
     }
 })
 

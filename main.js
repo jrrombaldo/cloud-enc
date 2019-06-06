@@ -1,4 +1,7 @@
 const { app, BrowserWindow } = require('electron')
+const log = require('electron-log');
+// auto update
+require('update-electron-app')({ logger: require('electron-log') })
 
 const { Menu } = require('electron')
 const fs = require("fs");
@@ -77,7 +80,7 @@ function loadScripts() {
     const scripts = fs.readdirSync("./main-scripts")
     scripts.forEach(script => {
         script.endsWith(".js") && require("./main-scripts/" + script)
-         // if (script.endsWith(".js")) {
+        // if (script.endsWith(".js")) {
         //     require("./main-scripts/" + script) && console.info(script, "imported")
         // }
     });

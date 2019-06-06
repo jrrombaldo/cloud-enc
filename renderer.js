@@ -1,6 +1,6 @@
 
 const { ipcRenderer, dialog } = require('electron')
-
+const log = require('electron-log');
 
 const source = document.getElementById('source')
 const destination = document.getElementById('destination')
