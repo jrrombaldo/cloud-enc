@@ -27,18 +27,20 @@ function updateBtn() {
 
 // ======  reading directories with native dialog, to avoid security issues with browsers
 source.onclick = () => {
-    var dir = ipcRenderer.sendSync("get_direcotry_natively", {})
-    if (dir) {
-        source.value = dir
-        var reuse = ipcRenderer.sendSync("account_exists_reuse", { source: dir, destination: dir })
-        if (reuse) {
-            passwordDiv.disabled = true
-            password.value = ""
-        }
-        else {
-            passwordDiv.disabled = false
-        }
-    }
+    ipcRenderer.send('put-in-tray')
+
+    // var dir = ipcRenderer.sendSync("get_direcotry_natively", {})
+    // if (dir) {
+    //     source.value = dir
+    //     var reuse = ipcRenderer.sendSync("account_exists_reuse", { source: dir, destination: dir })
+    //     if (reuse) {
+    //         passwordDiv.disabled = true
+    //         password.value = ""
+    //     }
+    //     else {
+    //         passwordDiv.disabled = false
+    //     }
+    // }
 }
 
 // ======  reading directories with native dialog, to avoid security issues with browsers
@@ -51,7 +53,7 @@ destination.onclick = () => {
 }
 
 
-cloudEncForm.onsubmit = ()=>{ 
+cloudEncForm.onsubmit = ()=>{
     var args = {
         source: source.value,
         destination: destination.value,

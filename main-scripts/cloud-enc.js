@@ -5,12 +5,15 @@ const path = require('path')
 var shell = require("shelljs")
 var os = require('os');
 const colors = require('colors');
-const log = require('electron-log');
+
+
+log.info("iam global now")
+
+
 
 // https://github.com/shelljs/shelljs/wiki/Electron-compatibility
 shell.config.execPath = shell.which("node").stdout;
 
-log.info("logged")
 // class CloudEnc {
 //     constructor(source, destination, volumeName = "") {
 //         this.checkOS()
@@ -281,10 +284,3 @@ ipcMain.on("mount_unmount", (event, arg) => {
         log.log(format("{0} unounted with success", destination))
     }
 })
-
-
-
-
-
-
-
